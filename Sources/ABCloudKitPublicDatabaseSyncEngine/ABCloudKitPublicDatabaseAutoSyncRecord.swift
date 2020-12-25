@@ -1,7 +1,7 @@
 import Foundation
 import CoreData
 
-final class ABCloudKitPublicDatabaseAutoSyncRecord {
+final public class ABCloudKitPublicDatabaseAutoSyncRecord {
     
     var managedObjectContext: NSManagedObjectContext
     var container: CKContainer
@@ -10,7 +10,7 @@ final class ABCloudKitPublicDatabaseAutoSyncRecord {
     var entity: NSEntityDescription
     
     @discardableResult
-    init(with managedObjectContext: NSManagedObjectContext, entity: NSEntityDescription) {
+    public init(with managedObjectContext: NSManagedObjectContext, entity: NSEntityDescription) {
         
         self.managedObjectContext = managedObjectContext
         self.container =  CKContainer.default()
@@ -74,7 +74,7 @@ final class ABCloudKitPublicDatabaseAutoSyncRecord {
         return entity
     }
     
-    func fetchLatestData() -> NSManagedObject? {
+    private func fetchLatestData() -> NSManagedObject? {
         let sortDescriptor =  NSSortDescriptor(key: "timestamp", ascending: false)
 
         let request = NSFetchRequest<NSFetchRequestResult>(entityName: self.entity.managedObjectClassName!)
@@ -93,14 +93,14 @@ final class ABCloudKitPublicDatabaseAutoSyncRecord {
         }
     }
     
-    func create(records: [CKRecord]) {
+    private func create(records: [CKRecord]) {
         records.forEach { record in
             RecordToEntity(record: record)
         }
         self.saveContext()
     }
     
-    func update(record: CKRecord) {
+    private func update(record: CKRecord) {
         
         let request = NSFetchRequest<NSFetchRequestResult>(entityName: self.entity.managedObjectClassName)
         request.fetchLimit = 1
@@ -133,7 +133,7 @@ final class ABCloudKitPublicDatabaseAutoSyncRecord {
         }
     }
     
-    func delete(recordID: CKRecord.ID) {
+    private func delete(recordID: CKRecord.ID) {
         let request = NSFetchRequest<NSFetchRequestResult>(entityName: self.entity.managedObjectClassName)
         request.fetchLimit = 1
         let predicate = NSPredicate(format: "id == %@", recordID.recordName as CVarArg)
@@ -151,16 +151,16 @@ final class ABCloudKitPublicDatabaseAutoSyncRecord {
         }
     }
     
-    func processSubscriptionNotification(with userInfo: [AnyHashable : Any]) {
-        self.syncEngine?.processSubscriptionNotification(with: userInfo)
-    }
-    
-    func saveContext() {
+    private func saveContext() {
         do {
             try self.managedObjectContext.save()
         } catch {
             print("Error saving managed object context: \(error)")
         }
+    }
+    
+    public func processSubscriptionNotification(with userInfo: [AnyHashable : Any]) {
+        self.syncEngine?.processSubscriptionNotification(with: userInfo)
     }
 }
 

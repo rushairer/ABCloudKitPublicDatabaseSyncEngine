@@ -1,7 +1,7 @@
 import Foundation
 import CloudKit
 
-final public class CloudNotification {
+final public class ABCloudNotification {
     static private(set) var langKey: String = {
         let currentLang = NSLocalizedString("current_lang", comment: "")
         var langKey = ""
@@ -17,7 +17,7 @@ final public class CloudNotification {
     var syncEngine: ABCloudKitPublicDatabaseSyncEngine?
     
     @discardableResult
-    init() {
+    public init() {
         let zoneID = CKRecordZone.default().zoneID
         self.container =  CKContainer.default()
         self.defaults = UserDefaults.standard
