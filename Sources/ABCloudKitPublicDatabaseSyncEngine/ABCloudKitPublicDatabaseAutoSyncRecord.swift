@@ -42,8 +42,8 @@ final public class ABCloudKitPublicDatabaseAutoSyncRecord {
             self.update(record: record!)
         }
         
-        self.syncEngine?.deleteRecordCompletionBlock = { recordID in
-            self.delete(recordID: recordID!)
+        self.syncEngine?.deleteRecordCompletionBlock = { deleteID in
+            self.delete(deleteID: deleteID)
         }
         
         self.syncEngine?.start()
@@ -133,21 +133,23 @@ final public class ABCloudKitPublicDatabaseAutoSyncRecord {
         }
     }
     
-    private func delete(recordID: CKRecord.ID) {
+    private func delete(deleteID: String) {
         let request = NSFetchRequest<NSFetchRequestResult>(entityName: self.entity.managedObjectClassName)
         request.fetchLimit = 1
-        let predicate = NSPredicate(format: "id == %@", recordID.recordName as CVarArg)
-        request.predicate = predicate
-        
-        //let deleteRequest = NSBatchDeleteRequest(fetchRequest: request)
-        do {
-            if let result = try self.managedObjectContext.fetch(request) as? [NSManagedObject] {
-                self.managedObjectContext.delete(result.first!)
+        if let uuid = UUID(uuidString: deleteID) {
+            let predicate = NSPredicate(format: "id == %@", uuid as CVarArg)
+            request.predicate = predicate
+            
+            do {
+                if let result = try self.managedObjectContext.fetch(request) as? [NSManagedObject] {
+                    if result.count > 0 {
+                        self.managedObjectContext.delete(result.first!)
+                    }
+                }
+                
+            } catch let error {
+                print(error)
             }
-            //try self.managedObjectContext.execute(deleteRequest)
-
-        } catch let error {
-            print(error)
         }
     }
     

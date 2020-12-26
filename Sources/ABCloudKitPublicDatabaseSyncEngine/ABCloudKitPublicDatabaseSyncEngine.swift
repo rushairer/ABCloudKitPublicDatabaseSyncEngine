@@ -8,7 +8,7 @@ public final class ABCloudKitPublicDatabaseSyncEngine {
     public var fetchRecordsCompletionBlock: (([CKRecord]?) -> Void)?
     public var createRecordCompletionBlock: ((CKRecord?) -> Void)?
     public var updateRecordCompletionBlock: ((CKRecord?) -> Void)?
-    public var deleteRecordCompletionBlock: ((CKRecord.ID?) -> Void)?
+    public var deleteRecordCompletionBlock: ((String) -> Void)?
     public lazy var subscription: CKQuerySubscription = {
         let predicate = NSPredicate(format: "TRUEPREDICATE")
         let subscription = CKQuerySubscription(recordType: self.recordType,
@@ -297,7 +297,16 @@ public extension ABCloudKitPublicDatabaseSyncEngine {
             }
         case .recordDeleted:
             if self.deleteRecordCompletionBlock != nil {
-                self.deleteRecordCompletionBlock!(notification.recordID!)
+                if let ck = userInfo["ck"] as? [String: Any] {
+                    if let qry = ck["qry"] as? [String: Any] {
+                        if let af = qry["af"] as? [String: Any] {
+                            if let deleteID = af["CD_id"] as? String {
+                                self.deleteRecordCompletionBlock!(deleteID)
+                            }
+                        }
+                    }
+                }
+
             }
         case .recordUpdated:
             if self.updateRecordCompletionBlock != nil {
