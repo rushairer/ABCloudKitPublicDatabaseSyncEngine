@@ -5,7 +5,7 @@ import CoreData
 public final class ABCloudKitPublicDatabaseSyncEngine {
     
     public var startCompletionBlock: (() -> Void)?
-    public var fetchRecordsCompletionBlock: (([CKRecord]?) -> Void)?
+    public var fetchRecordsCompletionBlock: (([CKRecord]?, @escaping (Date)->Void) -> Void)?
     public var createRecordCompletionBlock: ((CKRecord?) -> Void)?
     public var updateRecordCompletionBlock: ((CKRecord?) -> Void)?
     public var deleteRecordCompletionBlock: ((String) -> Void)?
@@ -258,7 +258,9 @@ public final class ABCloudKitPublicDatabaseSyncEngine {
                 print(error!)
             } else if self!.fetchRecordsCompletionBlock != nil {
                 DispatchQueue.main.async {
-                    self!.fetchRecordsCompletionBlock!(result)
+                    self!.fetchRecordsCompletionBlock!(result, { date in
+                        self!.updateLatestModificationDate(date: date)
+                    })
                 }
             }
         }

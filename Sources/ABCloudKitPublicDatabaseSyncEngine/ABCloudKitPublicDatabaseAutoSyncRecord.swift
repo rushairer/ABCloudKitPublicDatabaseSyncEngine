@@ -23,16 +23,22 @@ final public class ABCloudKitPublicDatabaseAutoSyncRecord {
                                                            recordType: "CD_\(self.entity.managedObjectClassName!)")
         
         self.syncEngine?.startCompletionBlock = {
-            if let latestRecord = self.fetchLatestData() {
-                self.syncEngine?.updateLatestModificationDate(date: latestRecord.value(forKey: "timestamp") as! Date)
-            }
             self.syncEngine?.fetchRecentRecords()
         }
         
-        self.syncEngine?.fetchRecordsCompletionBlock = { records in
+        self.syncEngine?.fetchRecordsCompletionBlock = { records, updateLatestModificationDate in
             guard records != nil else { return }
             self.create(records: records!)
+            
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 3) {
+                if let latestRecord = self.fetchLatestData() {
+                    if latestRecord.value(forKey: "timestamp") != nil {
+                        updateLatestModificationDate(latestRecord.value(forKey: "timestamp") as! Date)
+                    }
+                }
+            }
         }
+        
         self.syncEngine?.createRecordCompletionBlock = { record in
             guard record != nil else { return }
             self.create(records: [record!])
