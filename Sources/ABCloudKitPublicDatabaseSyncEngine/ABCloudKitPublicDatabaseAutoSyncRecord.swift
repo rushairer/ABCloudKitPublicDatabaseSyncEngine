@@ -1,4 +1,5 @@
 import Foundation
+import CloudKit
 import CoreData
 
 final public class ABCloudKitPublicDatabaseAutoSyncRecord {

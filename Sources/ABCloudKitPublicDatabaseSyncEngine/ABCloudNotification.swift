@@ -56,6 +56,7 @@ final public class ABCloudNotification {
     public func resetBadgeCounter() {
         let operation = CKModifyBadgeOperation(badgeValue: 0)
         operation.modifyBadgeCompletionBlock = { (error) -> Void in
+            
         }
         operation.qualityOfService = .userInitiated
         
