@@ -54,7 +54,7 @@ final public class ABCloudNotification {
         self.syncEngine?.start()
     }
 
-    @available(iOS 10.0, macOS 10.14, tvOS 10.0, *)
+    @available(iOS 16.0, macOS 13.0, tvOS 16.0, *)
     @available(watchOS, unavailable)
     public func resetBadgeCounter() {
         UNUserNotificationCenter.current().setBadgeCount(0) { error in
