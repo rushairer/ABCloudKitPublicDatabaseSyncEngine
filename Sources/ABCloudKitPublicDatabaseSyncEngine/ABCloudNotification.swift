@@ -1,5 +1,6 @@
 import Foundation
 import CloudKit
+import UserNotifications
 
 final public class ABCloudNotification {
     static private(set) var langKey: String = {
@@ -11,30 +12,30 @@ final public class ABCloudNotification {
         return langKey
     }()
     static let cloudNotification = "CloudNotification\(langKey)"
-    
+
     var container: CKContainer
     var defaults: UserDefaults
     var syncEngine: ABCloudKitPublicDatabaseSyncEngine?
-    
+
     @discardableResult
     public init() {
         let zoneID = CKRecordZone.default().zoneID
         self.container =  CKContainer.default()
         self.defaults = UserDefaults.standard
-        
+
         self.syncEngine = ABCloudKitPublicDatabaseSyncEngine(defaults: self.defaults,
                                                            zoneID: zoneID,
                                                            recordType: Self.cloudNotification)
-        
+
         let predicate = NSPredicate(format: "TRUEPREDICATE")
         let subscription = CKQuerySubscription(recordType: Self.cloudNotification,
                                                predicate: predicate,
                                                subscriptionID: self.syncEngine!.publicSubscriptionKey,
                                                options: [.firesOnRecordCreation])
-        
+
         let notificationInfo = CKSubscription.NotificationInfo()
         notificationInfo.shouldSendContentAvailable = true
-        
+
         notificationInfo.titleLocalizationKey = "%1$@"
         notificationInfo.titleLocalizationArgs = ["title"]
         notificationInfo.alertLocalizationKey = "%1$@"
@@ -45,21 +46,21 @@ final public class ABCloudNotification {
         notificationInfo.desiredKeys = [
             "info",
         ]
-        
+
         subscription.notificationInfo = notificationInfo
 
         self.syncEngine?.subscription = subscription
-        
+
         self.syncEngine?.start()
     }
-    
+
+    @available(iOS 10.0, macOS 10.14, tvOS 10.0, *)
+    @available(watchOS, unavailable)
     public func resetBadgeCounter() {
-        let operation = CKModifyBadgeOperation(badgeValue: 0)
-        operation.modifyBadgeCompletionBlock = { (error) -> Void in
-            
+        UNUserNotificationCenter.current().setBadgeCount(0) { error in
+            if let error = error {
+                print("Failed to reset badge counter: \(error)")
+            }
         }
-        operation.qualityOfService = .userInitiated
-        
-        self.container.add(operation)
     }
 }
